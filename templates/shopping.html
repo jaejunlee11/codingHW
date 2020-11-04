@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .topscreen {
+            background-image: url('https://www.ancient-origins.net/sites/default/files/field/image/Agesilaus-II-cover.jpg');
+            width: 700px;
+            height: 300px;
+            background-position: center;
+            background-size: cover;
+            margin: auto;
+        }
+
+        .bodySet {
+            width: 700px;
+            margin: auto;
+        }
+
+        .box {
+            border-left: 3px solid;
+            border-bottom: 3px solid;
+            border-top: 3px solid;
+            border-radius: 3px;
+            width: 105px;
+            height: 25px;
+        }
+
+        .textbox {
+            width: 200px;
+            height: 25px;
+            border-radius: 3px;
+        }
+
+        .buttonCenter {
+            width: 300px;
+            margin: auto;
+        }
+
+        .buttonBig {
+            width: 300px;
+            height: 40px;
+        }
+
+        .whereM {
+            position: relative;
+            width: 700px;
+            margin: auto;
+        }
+
+        .whereC {
+            position: absolute;
+            left: 105px;
+            top: 0;
+
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('#won').empty();
+            $.ajax({
+                type: "GET",
+                url: 'https://api.manana.kr/exchange/rate.json',
+                data: {},
+                success: function (response) {
+                    exchange = response[1]['rate']
+                    tempHtml = `달러-원 환율 : ${exchange}`;
+
+                    $('#won').append(tempHtml);
+                }
+            })
+            $('#order-box').html('');
+            setting();
+        });
+
+        function order() {
+            let name = $('#name-box').val();
+            let count = $('#count-box').val();
+            let where = $('#where-box').val();
+            let phone = $('#phone-box').val();
+            if (name == '') {
+                alert('이름을 입력하세요.')
+            } else if (count == '') {
+                alert('수량을 입력하세요.')
+            } else if (where == '') {
+                alert('주소를 입력하세요.')
+            } else if (phone == '') {
+                alert('전화번호를 입력하세요.')
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/order",
+                    data: {
+                        'name': name,
+                        'count': count,
+                        'where': where,
+                        'phone': phone
+                    },
+                    success: function (response) {
+                        if (response["result"] == "success") {
+                            alert('주문이 완료되었습니다.')
+                            window.location.reload();
+                        }
+                    }
+                })
+
+            }
+        }
+
+        function setting() {
+            $.ajax({
+                type: "GET",
+                url: '/order',
+                data: {},
+                success: function (response) {
+                    orders = response["orders"]
+                    for (i=0; i < orders.length; i++) {
+                        orderList = orders[i]
+                        name=orderList['name']
+                        count=orderList['count']
+                        where=orderList['where']
+                        phone=orderList['phone']
+                        htmlSet = `<tr>
+            <td align="center">${name}</td>
+            <td align="center">${count}</td>
+            <td align="center">${where}</td>
+            <td align="center">${phone}</td>
+        </tr>`
+                        $('#order-box').append(htmlSet);
+                    }
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+<div class="bodySet">
+    <div class="topscreen">
+    </div>
+    <p>
+    <p>
+    <h1 style="display: inline">상품제목</h1> 가격:30,000원/개</p>
+    <p>이 상품은 스파르타로 우리들에게 지식과 자신감을 주는 상품입니다. 스파르타로 당신을 업그레이드 하세요!!!</p>
+    <div>
+        <p id="won"></p>
+    </div>
+    <div>
+        <h1>주문하기</h1>
+        <div class="whereM">
+            <p class="box">주문자 성함: </p><input id="name-box" class="textbox whereC" type="text">
+        </div>
+        <div class="whereM">
+            <p class="box">수량: </p><input id="count-box" class="whereC textbox" type="number"
+                                          placeholder="--수량을 입력하세요--" min="0">
+        </div>
+        <div class="whereM">
+            <p class="box">주소: </p><input id="where-box" class="whereC textbox" type="text">
+        </div>
+        <div class="whereM">
+            <p class="box">전화번호: </p><input id="phone-box" class="whereC textbox" type="text">
+        </div>
+    </div>
+</div>
+<div class="buttonCenter">
+    <p></p>
+    <button onclick="order()" class="buttonBig">주문하기</button>
+    <p></p>
+</div>
+<div class="bodySet">
+    <h1>주문내역</h1>
+    <table border="1" align="center" width="700px">
+        <thead>
+        <tr>
+            <th scope="col">이름</th>
+            <th scope="col">수량</th>
+            <th scope="col">주소</th>
+            <th scope="col">전화번호</th>
+        </tr>
+        </thead>
+        <tbody id="order-box">
+        <tr>
+            <td>이재준</td>
+            <td>30</td>
+            <td>경기도 용인시 기흥구 덕영대로 2077번길 33 113동 701호</td>
+            <td>010 4884 6856</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

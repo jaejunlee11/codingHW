@@ -34,3 +34,4 @@ for tr in trs :
     print(rank,title,singer)
     db.song.insert_one(song)
 
+# 깃허브 테스트
